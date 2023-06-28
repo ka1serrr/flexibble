@@ -1,0 +1,23 @@
+footer {
+  >.footerWrapper {
+    @apply flex flex-col gap-12 w-full;
+  }
+
+  .logo {
+    @apply flex items-start flex-col;
+  }
+
+  .logoText {
+    @apply text-start text-sm font-normal mt-5 max-w-xs;
+  }
+
+  .columnsWrapper {
+    @apply flex flex-wrap gap-12
+  }
+
+  .columnWrapper {
+    @apply flex flex-1 flex-col gap-4;
+  }
+}
+
+

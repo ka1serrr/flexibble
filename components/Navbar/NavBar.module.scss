@@ -1,0 +1,9 @@
+nav {
+  .logo {
+    @apply flex-1 gap-10
+  }
+
+  .logoLinks {
+    @apply xl:flex hidden gap-7
+  }
+}

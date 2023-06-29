@@ -11,7 +11,9 @@ const User = g.model('User', {
     .relation(() => Project)
     .list()
     .optional(),
-});
+}).auth((rules) =>  {
+  rules.public().read()
+} );
 
 const Project = g.model('Project', {
   title: g.string().length({ min: 3 }),
@@ -21,16 +23,21 @@ const Project = g.model('Project', {
   githubUrl: g.url().optional(),
   category: g.string().search(),
   createdBy: g.relation(() => User),
+}).auth(rules => {
+  rules.public().read()
+  rules.private().create().delete().update()
 });
 
+const jwt = auth.JWT({
+  issuer: 'grafbase',
+  secret: g.env('NEXTAUTH_SECRET')
+})
+
+//@ts-ignore
 export default config({
   schema: g,
-  // Integrate Auth
-  // https://grafbase.com/docs/auth
-  // auth: {
-  //   providers: [authProvider],
-  //   rules: (rules) => {
-  //     rules.private()
-  //   }
-  // }
+  auth: {
+    providers: [jwt],
+    rules: (rules) => rules.private()
+  }
 });

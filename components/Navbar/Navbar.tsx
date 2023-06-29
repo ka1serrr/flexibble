@@ -5,7 +5,6 @@ import { NavLinks } from '@/constants';
 import styles from './NavBar.module.scss';
 import { AuthProviders } from '@/components/AuthProviders';
 import { getCurrentUser } from '@/lib/session';
-import { signOut } from 'next-auth/react';
 import { ProfileMenu } from '@/components/ProfilMenu/ProfileMenu';
 
 const NavLink = () => {

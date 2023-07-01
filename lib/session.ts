@@ -4,7 +4,6 @@ import { AdapterUser } from 'next-auth/adapters';
 import GoogleProvider from 'next-auth/providers/google';
 import jsonwebtoken from 'jsonwebtoken';
 import { JWT } from 'next-auth/jwt';
-import { auth } from '@grafbase/sdk';
 import { SessionInterface, UserProfile } from '@/common.type';
 import { createUser, getUser } from '@/lib/actions';
 
@@ -17,13 +16,16 @@ export const authOptions: NextAuthOptions = {
   ],
   jwt: {
     encode: ({ secret, token }) => {
-      const encodedToken = jsonwebtoken.sign({...token, iss: 'grafbase', exp: Math.floor(Date.now()/ 100) + 60 * 60}, secret )
-      return encodedToken
+      const encodedToken = jsonwebtoken.sign(
+        { ...token, iss: 'grafbase', exp: Math.floor(Date.now() / 100) + 60 * 60 },
+        secret,
+      );
+      return encodedToken;
     },
     decode: async ({ secret, token }) => {
       const decodedToken = jsonwebtoken.verify(token!, secret) as JWT;
 
-      return decodedToken
+      return decodedToken;
     },
   },
   theme: {
@@ -35,26 +37,26 @@ export const authOptions: NextAuthOptions = {
       const email = session?.user?.email as string;
 
       try {
-        const data = await getUser(email) as {user?: UserProfile}
+        const data = (await getUser(email)) as { user?: UserProfile };
 
         const newSession = {
           ...session,
           user: {
             ...session.user,
-            ...data?.user
-          }
-        }
+            ...data?.user,
+          },
+        };
         return newSession;
       } catch (e) {
-        throw new Error (e.message)
+        throw new Error(e.message);
       }
     },
     async signIn({ user }: { user: AdapterUser | User }) {
       try {
-        const userExist = await getUser(user?.email as string) as {user?: UserProfile}
+        const userExist = (await getUser(user?.email as string)) as { user?: UserProfile };
 
         if (!userExist.user) {
-          await createUser(user.name as string, user.email as string, user.image as string)
+          await createUser(user.name as string, user.email as string, user.image as string);
         }
 
         return true;

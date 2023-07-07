@@ -1,7 +1,7 @@
 'use client';
 
 import { SessionInterface } from '@/common.type';
-import { FC } from 'react';
+import { FC, FormEvent } from 'react';
 import styles from './ProjectForm.module.scss';
 
 import { FormField } from '@/components/FormField/FormField';
@@ -10,6 +10,8 @@ import { categoryFilters } from '@/constants';
 import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/Button/Button';
+import { createNewProject, fetchToken } from '@/lib/actions';
+import { useRouter } from 'next/navigation';
 
 interface ProjectFormProps {
   type: 'create' | 'edit';
@@ -17,16 +19,37 @@ interface ProjectFormProps {
 }
 
 export const ProjectForm: FC<ProjectFormProps> = ({ type, session }) => {
-  const handleSubmit = async (e: React.FormEvent) => {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [form, setForm] = useState({
+    title: '',
+    description: '',
+    image: '',
+    liveSiteUrl: '',
+    githubUrl: '',
+    category: '',
+  });
+  const handleStateChange = (fieldName: string, value: string) => {
+    setForm((prevState) => ({ ...prevState, [fieldName]: value }));
+  };
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     setIsSubmitting(true);
 
+    const { token } = await fetchToken();
+
     try {
       if (type === 'create') {
+        await createNewProject(form, session?.user?.id, token);
+
+        router.push('/');
       }
-    } catch (e) {
-      console.log(e.message);
+    } catch (error) {
+      alert(`Failed to ${type === 'create' ? 'create' : 'edit'} a project. Try again!`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -50,20 +73,6 @@ export const ProjectForm: FC<ProjectFormProps> = ({ type, session }) => {
       handleStateChange('image', result);
     };
   };
-
-  const handleStateChange = (fieldName: string, value: string) => {
-    setForm((prevState) => ({ ...prevState, [fieldName]: value }));
-  };
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [form, setForm] = useState({
-    title: '',
-    description: '',
-    image: '',
-    liveSiteUrl: '',
-    githubUrl: '',
-    category: '',
-  });
 
   return (
     <form onSubmit={handleSubmit} className='flexStart form'>
